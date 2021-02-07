@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/kafka-payment-provider.iml" filepath="$PROJECT_DIR$/kafka-payment-provider.iml" />
+      <module fileurl="file://$PROJECT_DIR$/provider1/provider1.iml" filepath="$PROJECT_DIR$/provider1/provider1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/state/state.iml" filepath="$PROJECT_DIR$/state/state.iml" />
+    </modules>
+  </component>
+</project>

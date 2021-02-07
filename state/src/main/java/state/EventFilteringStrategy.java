@@ -6,20 +6,21 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 
+import state.model.Event;
 import state.model.Payment;
 
 /**
  * @author davidgammon
  *
  */
-public class EventFilteringStrategy implements RecordFilterStrategy<String, Payment> {
-  private final String type;
+public class EventFilteringStrategy implements RecordFilterStrategy<String, Event> {
+  private final String provider;
   
   /**
-   * @param type
+   * @param provider
    */
-  public EventFilteringStrategy(final String type) {
-    this.type = type;
+  public EventFilteringStrategy(final String provider) {
+    this.provider = provider;
   }
 
 
@@ -28,8 +29,8 @@ public class EventFilteringStrategy implements RecordFilterStrategy<String, Paym
    * {@inheritDoc}
    */
   @Override
-  public boolean filter(final ConsumerRecord<String, Payment> consumerRecord) {
-    final Optional<Header> header = Optional.ofNullable(consumerRecord.headers().lastHeader("type"));
+  public boolean filter(final ConsumerRecord<String, Event> consumerRecord) {
+    final Optional<Header> header = Optional.ofNullable(consumerRecord.headers().lastHeader("provider"));
     
     return header.map(this::shouldFilter)
                  .orElse(true);
@@ -38,7 +39,7 @@ public class EventFilteringStrategy implements RecordFilterStrategy<String, Paym
   private boolean shouldFilter(final Header header) {
     final String headerValue = new String(header.value());
     
-    return !type.equals(headerValue);
+    return !provider.equals(headerValue);
   }
 }
 

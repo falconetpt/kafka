@@ -16,10 +16,11 @@ import state.model.Payment;
 public class EventServiceImpl {
   @Autowired
   private KafkaTemplate<String, Payment> template;
+
   private @Value("${payment.topic}") String topic;
   
   public void invoke(final String id, final Payment value, final String type) {
-    final var record = new ProducerRecord<String, Payment>(topic, id, value);
+    final var record = new ProducerRecord<>(topic, id, value);
     record.headers().add("type", type.getBytes());
     
     template.send(record);

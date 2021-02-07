@@ -27,6 +27,7 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
+import state.model.Event;
 import state.model.Payment;
 
 
@@ -62,7 +63,7 @@ public class Provider1Application {
   }
 
   @Bean
-  public ProducerFactory<String, Payment> producerFactory() {
+  public ProducerFactory<String, Event> producerFactory() {
     final Map<String, Object> configProps = new HashMap<>();
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -72,8 +73,8 @@ public class Provider1Application {
   }
 
   @Bean
-  public KafkaTemplate<String, Payment> kafkaTemplate() {
-    return new KafkaTemplate<String, Payment>(producerFactory());
+  public KafkaTemplate<String, Event> kafkaTemplate() {
+    return new KafkaTemplate<>(producerFactory());
   }
 
   @Bean
@@ -87,26 +88,26 @@ public class Provider1Application {
     props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Payment.class);
     return new DefaultKafkaConsumerFactory<>(props);
   }
-  
-  @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, Payment> submitting(
-      final ConsumerFactory<String, Payment> p) {
 
-    final ConcurrentKafkaListenerContainerFactory<String, Payment> factory = new ConcurrentKafkaListenerContainerFactory<>();
-    factory.setConsumerFactory(consumerFactory());
-    factory.setRecordFilterStrategy(new EventFilteringStrategy("submitting"));
-    
-    return factory;
-  }
-  
-  @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, Payment> created(
-      final ConsumerFactory<String, Payment> p) {
-
-    final ConcurrentKafkaListenerContainerFactory<String, Payment> factory = new ConcurrentKafkaListenerContainerFactory<>();
-    factory.setConsumerFactory(consumerFactory());
-    factory.setRecordFilterStrategy(new EventFilteringStrategy("created"));
-    
-    return factory;
-  }
+//  @Bean
+//  public ConcurrentKafkaListenerContainerFactory<String, Payment> submitting(
+//      final ConsumerFactory<String, Payment> p) {
+//
+//    final ConcurrentKafkaListenerContainerFactory<String, Payment> factory = new ConcurrentKafkaListenerContainerFactory<>();
+//    factory.setConsumerFactory(consumerFactory());
+//    factory.setRecordFilterStrategy(new EventFilteringStrategy("submitting"));
+//
+//    return factory;
+//  }
+//
+//  @Bean
+//  public ConcurrentKafkaListenerContainerFactory<String, Payment> created(
+//      final ConsumerFactory<String, Payment> p) {
+//
+//    final ConcurrentKafkaListenerContainerFactory<String, Payment> factory = new ConcurrentKafkaListenerContainerFactory<>();
+//    factory.setConsumerFactory(consumerFactory());
+//    factory.setRecordFilterStrategy(new EventFilteringStrategy("created"));
+//
+//    return factory;
+//  }
 }

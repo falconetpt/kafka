@@ -3,6 +3,7 @@ package state;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.datastax.oss.driver.api.core.CqlSession;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -28,6 +29,7 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
+import state.model.Event;
 import state.model.Payment;
 
 
@@ -38,7 +40,6 @@ import state.model.Payment;
  */
 @Configuration
 @SpringBootApplication
-@ComponentScan("state")
 @EnableMongoRepositories(basePackages = "state.dao")
 public class Application {
   private @Value("${payment.group}") String groupId;
@@ -75,11 +76,11 @@ public class Application {
 
   @Bean
   public KafkaTemplate<String, Payment> kafkaTemplate() {
-    return new KafkaTemplate<String, Payment>(producerFactory());
+    return new KafkaTemplate<>(producerFactory());
   }
 
   @Bean
-  public ConsumerFactory<String, Payment> consumerFactory() {
+  public ConsumerFactory<String, Event> consumerFactory() {
     final Map<String, Object> props = new HashMap<>();
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -89,49 +90,34 @@ public class Application {
     props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Payment.class);
     return new DefaultKafkaConsumerFactory<>(props);
   }
-  
+
 
   @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, Payment> create(
-      final ConsumerFactory<String, Payment> p) {
+  public ConcurrentKafkaListenerContainerFactory<String, Event> lhv(
+      final ConsumerFactory<String, Event> p) {
 
-    final ConcurrentKafkaListenerContainerFactory<String, Payment> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    final ConcurrentKafkaListenerContainerFactory<String, Event> factory = new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(consumerFactory());
-    factory.setRecordFilterStrategy(new EventFilteringStrategy("create"));
-    
+    factory.setRecordFilterStrategy(new EventFilteringStrategy("lhv"));
+
     return factory;
   }
-  
+
   @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, Payment> update(
-      final ConsumerFactory<String, Payment> p) {
+  public ConcurrentKafkaListenerContainerFactory<String, Event> trustly(
+      final ConsumerFactory<String, Event> p) {
 
-    final ConcurrentKafkaListenerContainerFactory<String, Payment> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    final ConcurrentKafkaListenerContainerFactory<String, Event> factory = new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(consumerFactory());
-    factory.setRecordFilterStrategy(new EventFilteringStrategy("update"));
-    
+    factory.setRecordFilterStrategy(new EventFilteringStrategy("trustly"));
+
     return factory;
   }
-  
-  @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, Payment> updateStatus(
-      final ConsumerFactory<String, Payment> p) {
 
-    final ConcurrentKafkaListenerContainerFactory<String, Payment> factory = new ConcurrentKafkaListenerContainerFactory<>();
-    factory.setConsumerFactory(consumerFactory());
-    factory.setRecordFilterStrategy(new EventFilteringStrategy("update_status"));
-    
-    return factory;
+  /*
+   * Use the standard Cassandra driver API to create a com.datastax.oss.driver.api.core.CqlSession instance.
+   */
+  public @Bean CqlSession session() {
+    return CqlSession.builder().withKeyspace("state_manager").build();
   }
-  
-//  @Bean
-//  public ConcurrentKafkaListenerContainerFactory<String, String> brownFactory(
-//      final ConsumerFactory<String, String> p) {
-//
-//    final ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-//    factory.setConsumerFactory(consumerFactory());
-//    factory.setRecordFilterStrategy(new EventFilteringStrategy("brown"));
-//    
-//    return factory;
-//  }
 }

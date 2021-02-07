@@ -1,16 +1,15 @@
 package state.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author davidgammon
@@ -22,6 +21,8 @@ public class Payment {
   private String id;
   
   private String status;
+
+  private String ackedStatus;
   
   private Map<String, Object> values = new HashMap<String, Object>();
   
@@ -103,6 +104,13 @@ public class Payment {
   public void setStatusHistory(final List<StatusHistory> statusHistory) {
     this.statusHistory = statusHistory;
   }
-  
-  
+
+
+  public String getAckedStatus() {
+    return ackedStatus;
+  }
+
+  public void setAckedStatus(String ackedStatus) {
+    this.ackedStatus = ackedStatus;
+  }
 }

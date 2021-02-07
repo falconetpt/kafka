@@ -1,17 +1,27 @@
 package state;
 
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import state.dao.PaymentDAO;
+import state.dao.PaymentHistoryDAO;
+import state.dto.EventDto;
+import state.model.Event;
 import state.model.Payment;
+import state.service.StateManagerService;
 
 /**
  * @author davidgammon
@@ -24,10 +34,13 @@ public class PaymentsController {
   private PaymentDAO dao;
   @Autowired
   private EventServiceImpl service;
-  
-  @GetMapping("/{id}")
-  public @ResponseBody Payment getPayment(final @PathVariable String id) {
-    return dao.findById(id).orElseThrow();
+  @Autowired
+  private StateManagerService stateManagerService;
+
+  @GetMapping("/{provider}/{id}")
+  public @ResponseBody Payment getPayment(final @PathVariable String provider,
+                                          final @PathVariable String id) {
+    return stateManagerService.project(provider, id);
   }
   
   @GetMapping("/submit")
