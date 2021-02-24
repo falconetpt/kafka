@@ -1,9 +1,12 @@
 package state.dao;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import state.model.Event;
 import state.model.Payment;
 
 /**
@@ -11,6 +14,7 @@ import state.model.Payment;
  *
  */
 
-public interface PaymentDAO extends MongoRepository<Payment, String> {
-  List<Payment> findByStatus(String status);
+public interface PaymentDAO extends CassandraRepository<Payment, String> {
+  Optional<Payment> findByProviderEqualsAndPaymentShortReferenceEquals(final String provider,
+                                                                     final String shortRef);
 }

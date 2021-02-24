@@ -2,6 +2,7 @@ package state.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import state.dao.PaymentDAO;
 import state.dao.PaymentHistoryDAO;
 import state.dao.QueuedSubmissionDAO;
 import state.model.Event;
@@ -21,11 +22,26 @@ public class StateManagerServiceImpl implements StateManagerService {
   @Autowired
   private PaymentHistoryDAO paymentHistoryDAO;
 
+  @Autowired
+  private PaymentDAO paymentDAO;
+
   private Map<String, BiConsumer<Payment, Event>> consumerMap = new HashMap<>() {{
-    put("ready", (p, e) -> p.setStatus("READY"));
-    put("submit", (p, e) -> p.setStatus("SUBMITED"));
-    put("acked", (p, e) -> p.setAckedStatus("SUBMITED"));
-    put("complete", (p, e) -> p.setStatus("COMPLETE"));
+    put("ready", (p, e) -> {
+      p.setStatus("READY");
+      p.setLastUpdate(e.getTimestamp());
+    });
+    put("submit", (p, e) -> {
+      p.setStatus("SUBMITED");
+      p.setLastUpdate(e.getTimestamp());
+    });
+    put("acked", (p, e) -> {
+      p.setAckedStatus("SUBMITED");
+      p.setLastUpdate(e.getTimestamp());
+    });
+    put("complete", (p, e) -> {
+      p.setStatus("COMPLETE");
+      p.setLastUpdate(e.getTimestamp());
+    });
   }};
 
   @Override
@@ -45,13 +61,24 @@ public class StateManagerServiceImpl implements StateManagerService {
 
   @Override
   public Payment project(String provider, String shortRef) {
-    var payment = new Payment();
-    payment.setId(shortRef);
+    var payment = paymentDAO
+            .findByProviderEqualsAndPaymentShortReferenceEquals(provider, shortRef)
+            .orElse(newPayment(provider, shortRef));
 
     StreamSupport.stream(
-            paymentHistoryDAO.findByProviderEqualsAndPaymentShortReferenceEquals(provider, shortRef).spliterator(),
+            paymentHistoryDAO
+                    .findByProviderEqualsAndPaymentShortReferenceEqualsAndTimestampAfter(provider, shortRef, payment.getLastUpdate())
+                    .spliterator(),
             false
     ).forEach(e -> consumerMap.get(e.getEventType()).accept(payment, e));
+
+    return paymentDAO.save(payment);
+  }
+
+  private Payment newPayment(String provider, String shortRef) {
+    var payment = new Payment();
+    payment.setProvider(provider);
+    payment.setPaymentShortReference(shortRef);
 
     return payment;
   }

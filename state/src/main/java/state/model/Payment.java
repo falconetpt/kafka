@@ -3,10 +3,16 @@ package state.model;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
+import org.springframework.data.cassandra.core.mapping.Column;
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
+import org.springframework.data.cassandra.core.mapping.Table;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,102 +21,17 @@ import java.util.Map;
  * @author davidgammon
  *
  */
-@Document(collection = "payment")
+@Data
+@Table(value = "payment_submission")
 public class Payment {
-  @Id
-  private String id;
-  
+  @PrimaryKeyColumn(name = "provider", type = PrimaryKeyType.PARTITIONED)
+  private String provider;
+  @PrimaryKeyColumn(name = "payment_short_ref")
+  private String paymentShortReference;
+  @PrimaryKeyColumn(name = "status")
   private String status;
-
+  @Column(value = "acked_status")
   private String ackedStatus;
-  
-  private Map<String, Object> values = new HashMap<String, Object>();
-  
-  @JsonIgnore
-  private List<StatusHistory> statusHistory = new ArrayList<StatusHistory>();
-  
-  /**
-   * Simple getter for {@link #status}.
-   * @return The value of {@link #status}. 
-   */
-  public String getStatus() {
-    return status;
-  }
-
-  /**
-   * Set the value of {@link #t}.
-   * @param status The value to set {@link #status}.
-   */
-  public void setStatus(final String status) {
-    this.status = status;
-  }
-  
-  
-  
-  
-  @JsonAnySetter
-  public void add(final String key, final String value) {
-    values.put(key, value);
-  }
-
-
-  /**
-   * Simple getter for {@link #values}.
-   * @return The value of {@link #values}. 
-   */
-  @JsonAnyGetter
-  public Map<String, Object> getValues() {
-    return values;
-  }
-
-  
-  
-  /**
-   * Set the value of {@link #t}.
-   * @param values The value to set {@link #values}.
-   */
-  public void setValues(final Map<String, Object> values) {
-    this.values = values;
-  }
-
-  /**
-   * Simple getter for {@link #id}.
-   * @return The value of {@link #id}. 
-   */
-  public String getId() {
-    return id;
-  }
-
-  /**
-   * Set the value of {@link #t}.
-   * @param id The value to set {@link #id}.
-   */
-  public void setId(final String id) {
-    this.id = id;
-  }
-
-  /**
-   * Simple getter for {@link #statusHistory}.
-   * @return The value of {@link #statusHistory}. 
-   */
-  public List<StatusHistory> getStatusHistory() {
-    return statusHistory;
-  }
-
-  /**
-   * Set the value of {@link #t}.
-   * @param statusHistory The value to set {@link #statusHistory}.
-   */
-  public void setStatusHistory(final List<StatusHistory> statusHistory) {
-    this.statusHistory = statusHistory;
-  }
-
-
-  public String getAckedStatus() {
-    return ackedStatus;
-  }
-
-  public void setAckedStatus(String ackedStatus) {
-    this.ackedStatus = ackedStatus;
-  }
+  @Column(value = "last_update")
+  private Date lastUpdate = new Date(0);
 }

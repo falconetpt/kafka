@@ -24,7 +24,7 @@ public class JacksonConfiguration {
     final ObjectMapper mapper = new ObjectMapper();
     
     final Payment payment1 = new Payment();
-    payment1.add("banana", "klkdp");
+//    payment1.add("banana", "klkdp");
 //    payment1.getValues().put("dffdgfd", "dfgfdg");
     
     System.out.println(mapper.writeValueAsString(payment1));
@@ -32,7 +32,7 @@ public class JacksonConfiguration {
     
     final Payment payment2 = mapper.readValue("{\"status\":\"123\", \"tot\":\"t\", \"tot2\": [\"punk\"]}", Payment.class);
     
-    System.out.println(payment2.getValues().get("tot"));
+//    System.out.println(payment2.getValues().get("tot"));
     System.out.println(payment2.getStatus());
   }
 

@@ -1,27 +1,18 @@
 package state;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import state.dao.PaymentDAO;
-import state.dao.PaymentHistoryDAO;
-import state.dto.EventDto;
-import state.model.Event;
+import state.dao.QueuedSubmissionDAO;
 import state.model.Payment;
 import state.service.StateManagerService;
+
+import java.util.List;
 
 /**
  * @author davidgammon
@@ -31,7 +22,7 @@ import state.service.StateManagerService;
 @RequestMapping(value = "payments", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PaymentsController {
   @Autowired
-  private PaymentDAO dao;
+  private QueuedSubmissionDAO dao;
   @Autowired
   private EventServiceImpl service;
   @Autowired
@@ -45,10 +36,15 @@ public class PaymentsController {
   
   @GetMapping("/submit")
   public @ResponseBody String getPayment() {
-    final List<Payment> payments = dao.findByStatus("ready");
-    
-    payments.forEach(e -> service.invoke(e.getId(), e, "submitting"));
-    
+    final var payments = dao.findAll();
+
+    payments.stream()
+            .peek(e -> {
+              final var payment = stateManagerService.project(e.getProvider(), e.getPaymentShortRef());
+              service.invoke(e.getPaymentShortRef(), payment, "submitting");
+            })
+            .forEach(dao::delete);
+
     return "ok";
   }
 }
