@@ -25,14 +25,14 @@ public class StateManagerServiceImpl implements StateManagerService {
   @Autowired
   private PaymentDAO paymentDAO;
 
-  private Map<String, BiConsumer<Payment, Event>> consumerMap = new HashMap<>() {{
+  private final Map<String, BiConsumer<Payment, Event>> consumerMap = new HashMap<>() {{
     put("ready", (p, e) -> p.setStatus("READY"));
     put("submit", (p, e) -> p.setStatus("SUBMITED"));
     put("acked", (p, e) -> p.setAckedStatus("SUBMITED"));
     put("complete", (p, e) -> p.setStatus("COMPLETE"));
   }};
 
-  private static BiConsumer<Payment, Event> updateTimeStamp = (p, e) -> p.setLastUpdate(e.getTimestamp());
+  private static final BiConsumer<Payment, Event> updateTimeStamp = (p, e) -> p.setLastUpdate(e.getTimestamp());
 
   @Override
   public void execute(Event message) {
@@ -55,16 +55,23 @@ public class StateManagerServiceImpl implements StateManagerService {
             .findByProviderEqualsAndPaymentShortReferenceEquals(provider, shortRef)
             .orElse(newPayment(provider, shortRef));
 
-    StreamSupport.stream(
-            paymentHistoryDAO
-                    .findByProviderEqualsAndPaymentShortReferenceEqualsAndTimestampAfter(provider, shortRef, payment.getLastUpdate())
-                    .spliterator(),
-            false
-    ).forEach(e -> consumerMap.get(e.getEventType())
-            .andThen(updateTimeStamp)
-            .accept(payment, e));
+    paymentHistoryDAO
+            .findByProviderEqualsAndPaymentShortReferenceEqualsAndTimestampAfter(provider, shortRef, payment.getLastUpdate())
+            .forEach(e -> consumerMap.get(e.getEventType())
+              .andThen(updateTimeStamp)
+              .accept(payment, e)
+            );
+
+    handlePayment(payment);
 
     return paymentDAO.save(payment);
+  }
+
+  private void handlePayment(final Payment payment) {
+    if ("SUBMITED".equalsIgnoreCase(payment.getAckedStatus())
+          && "COMPLETE".equalsIgnoreCase(payment.getStatus())) {
+      // send to PE the complete msg
+    } // handle failure as well
   }
 
   private Payment newPayment(String provider, String shortRef) {
