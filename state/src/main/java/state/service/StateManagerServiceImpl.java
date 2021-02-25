@@ -26,23 +26,13 @@ public class StateManagerServiceImpl implements StateManagerService {
   private PaymentDAO paymentDAO;
 
   private Map<String, BiConsumer<Payment, Event>> consumerMap = new HashMap<>() {{
-    put("ready", (p, e) -> {
-      p.setStatus("READY");
-      p.setLastUpdate(e.getTimestamp());
-    });
-    put("submit", (p, e) -> {
-      p.setStatus("SUBMITED");
-      p.setLastUpdate(e.getTimestamp());
-    });
-    put("acked", (p, e) -> {
-      p.setAckedStatus("SUBMITED");
-      p.setLastUpdate(e.getTimestamp());
-    });
-    put("complete", (p, e) -> {
-      p.setStatus("COMPLETE");
-      p.setLastUpdate(e.getTimestamp());
-    });
+    put("ready", (p, e) -> p.setStatus("READY"));
+    put("submit", (p, e) -> p.setStatus("SUBMITED"));
+    put("acked", (p, e) -> p.setAckedStatus("SUBMITED"));
+    put("complete", (p, e) -> p.setStatus("COMPLETE"));
   }};
+
+  private static BiConsumer<Payment, Event> updateTimeStamp = (p, e) -> p.setLastUpdate(e.getTimestamp());
 
   @Override
   public void execute(Event message) {
@@ -70,7 +60,9 @@ public class StateManagerServiceImpl implements StateManagerService {
                     .findByProviderEqualsAndPaymentShortReferenceEqualsAndTimestampAfter(provider, shortRef, payment.getLastUpdate())
                     .spliterator(),
             false
-    ).forEach(e -> consumerMap.get(e.getEventType()).accept(payment, e));
+    ).forEach(e -> consumerMap.get(e.getEventType())
+            .andThen(updateTimeStamp)
+            .accept(payment, e));
 
     return paymentDAO.save(payment);
   }
