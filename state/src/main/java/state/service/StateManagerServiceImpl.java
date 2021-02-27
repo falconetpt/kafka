@@ -1,5 +1,6 @@
 package state.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import state.dao.PaymentDAO;
@@ -12,17 +13,12 @@ import state.model.QueuedPayment;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.stream.StreamSupport;
 
 @Service
+@RequiredArgsConstructor
 public class StateManagerServiceImpl implements StateManagerService {
-  @Autowired
   private QueuedSubmissionDAO queuedSubmissionDAO;
-
-  @Autowired
   private PaymentHistoryDAO paymentHistoryDAO;
-
-  @Autowired
   private PaymentDAO paymentDAO;
 
   private final Map<String, BiConsumer<Payment, Event>> consumerMap = new HashMap<>() {{
