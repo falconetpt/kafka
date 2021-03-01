@@ -9,16 +9,20 @@ import state.dao.QueuedSubmissionDAO;
 import state.model.Event;
 import state.model.Payment;
 import state.model.QueuedPayment;
+import state.model.QueuedPaymentId;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
 @Service
-@RequiredArgsConstructor
+
 public class StateManagerServiceImpl implements StateManagerService {
+  @Autowired
   private QueuedSubmissionDAO queuedSubmissionDAO;
+  @Autowired
   private PaymentHistoryDAO paymentHistoryDAO;
+  @Autowired
   private PaymentDAO paymentDAO;
 
   private final Map<String, BiConsumer<Payment, Event>> consumerMap = new HashMap<>() {{

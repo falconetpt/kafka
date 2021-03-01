@@ -1,9 +1,5 @@
 package state;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.datastax.oss.driver.api.core.CqlSession;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -14,9 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -28,10 +23,11 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-
 import state.model.Event;
 import state.model.Payment;
 
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -40,7 +36,7 @@ import state.model.Payment;
  */
 @Configuration
 @SpringBootApplication
-@EnableMongoRepositories(basePackages = "state.dao")
+@EnableJpaRepositories
 public class Application {
   private @Value("${payment.group}") String groupId;
   private @Value("${payment.topic}") String topic;
@@ -114,10 +110,4 @@ public class Application {
     return factory;
   }
 
-  /*
-   * Use the standard Cassandra driver API to create a com.datastax.oss.driver.api.core.CqlSession instance.
-   */
-  public @Bean CqlSession session() {
-    return CqlSession.builder().withKeyspace("state_manager").build();
-  }
 }

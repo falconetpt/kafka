@@ -1,27 +1,35 @@
 package state.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
-import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
-import org.springframework.data.cassandra.core.mapping.Table;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 @Data
-@Table(value = "events")
-public class Event {
-  @PrimaryKeyColumn(name = "provider", type = PrimaryKeyType.PARTITIONED)
+@Entity
+@Table(name = "events")
+@IdClass(EventId.class)
+public class Event implements Serializable {
+  @Id
+  @Column(name = "provider")
   private String provider;
-  @PrimaryKeyColumn(name = "payment_short_ref")
+  @Id
+  @Column(name = "payment_short_ref")
   private String paymentShortReference;
-  @PrimaryKeyColumn(name = "event_id")
-  private String eventId;
-  @PrimaryKeyColumn(name = "timestamp")
+  @Id
+  @Column(name = "timestamp")
   private Date timestamp;
-  @Column(value = "event_type")
+  @Id
+  @Column(name = "event_id")
+  private String eventId;
+  @Column(name = "event_type")
   private String eventType;
-  @Column(value = "data")
+  @Column(name = "data")
   private String data;
 }

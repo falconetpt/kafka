@@ -1,7 +1,7 @@
 package state.dao;
 
-import org.springframework.data.cassandra.repository.CassandraRepository;
+import org.springframework.data.repository.CrudRepository;
 import state.model.QueuedPayment;
 
-public interface QueuedSubmissionDAO extends CassandraRepository<QueuedPayment, String> {
+public interface QueuedSubmissionDAO extends CrudRepository<QueuedPayment, String> {
 }

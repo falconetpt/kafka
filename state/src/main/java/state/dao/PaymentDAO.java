@@ -1,20 +1,16 @@
 package state.dao;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.cassandra.repository.CassandraRepository;
-import org.springframework.data.mongodb.repository.MongoRepository;
-
-import state.model.Event;
+import org.springframework.data.repository.CrudRepository;
 import state.model.Payment;
+
+import java.util.Optional;
 
 /**
  * @author davidgammon
  *
  */
 
-public interface PaymentDAO extends CassandraRepository<Payment, String> {
+public interface PaymentDAO extends CrudRepository<Payment, String> {
   Optional<Payment> findByProviderEqualsAndPaymentShortReferenceEquals(final String provider,
-                                                                     final String shortRef);
+                                                                       final String shortRef);
 }

@@ -3,21 +3,28 @@ package state.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
-import org.springframework.data.cassandra.core.mapping.Table;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
-@Table(value = "queued_submissions")
+@Table(name = "queued_submissions")
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class QueuedPayment {
-  @PrimaryKeyColumn(name = "provider", type = PrimaryKeyType.PARTITIONED)
+@IdClass(QueuedPaymentId.class)
+public class QueuedPayment implements Serializable {
+  @Id
+  @Column(name = "provider")
   private String provider;
-  @PrimaryKeyColumn(name = "payment_short_ref")
-  private String paymentShortRef;
-  @PrimaryKeyColumn(name = "timestamp")
+  @Id
+  @Column(name = "payment_short_ref")
+  private String paymentShortReference;
+  @Column(name = "timestamp")
   private Date timestamp;
 }

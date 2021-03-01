@@ -13,6 +13,7 @@ import state.model.Payment;
 import state.service.StateManagerService;
 
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 /**
  * @author davidgammon
@@ -38,10 +39,10 @@ public class PaymentsController {
   public @ResponseBody String getPayment() {
     final var payments = dao.findAll();
 
-    payments.stream()
+    StreamSupport.stream(payments.spliterator(), false)
             .peek(e -> {
-              final var payment = stateManagerService.project(e.getProvider(), e.getPaymentShortRef());
-              service.invoke(e.getPaymentShortRef(), payment, "submitting");
+              final var payment = stateManagerService.project(e.getProvider(), e.getPaymentShortReference());
+              service.invoke(e.getPaymentShortReference(), payment, "submitting");
             })
             .forEach(dao::delete);
 
