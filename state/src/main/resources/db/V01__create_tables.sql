@@ -14,6 +14,8 @@ CREATE TABLE payment_submission (
                                   payment_short_ref varchar(255) NOT NULL,
                                   last_update timestamp NOT NULL,
                                   status varchar(255),
+                                  payment_amount varchar(255),
+                                  payment_currency varchar(255),
                                   acked_status varchar(255),
                                   PRIMARY KEY  (provider, payment_short_ref)
 );

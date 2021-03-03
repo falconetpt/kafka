@@ -29,6 +29,10 @@ public class Payment implements Serializable {
   private String status;
   @Column(name = "acked_status")
   private String ackedStatus;
+  @Column(name = "payment_amount")
+  private String paymentAmount;
+  @Column(name = "payment_currency")
+  private String paymentCurrency;
   @Column(name = "last_update")
   private Date lastUpdate = new Date(0);
 }

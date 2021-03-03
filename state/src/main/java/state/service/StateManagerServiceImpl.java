@@ -1,5 +1,7 @@
 package state.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import state.dao.PaymentHistoryDAO;
 import state.dao.QueuedSubmissionDAO;
 import state.model.Event;
 import state.model.Payment;
+import state.model.PaymentAmount;
 import state.model.QueuedPayment;
 import state.model.QueuedPaymentId;
 
@@ -26,6 +29,17 @@ public class StateManagerServiceImpl implements StateManagerService {
   private PaymentDAO paymentDAO;
 
   private final Map<String, BiConsumer<Payment, Event>> consumerMap = new HashMap<>() {{
+    put("released", (p, e) -> {
+      PaymentAmount paymentAmount = null;
+      try {
+        paymentAmount = new ObjectMapper().readValue(e.getData(), PaymentAmount.class);
+      } catch (JsonProcessingException jsonProcessingException) {
+        jsonProcessingException.printStackTrace();
+      }
+      p.setStatus("RELEASED");
+      p.setPaymentCurrency(paymentAmount.getPaymentCurrency());
+      p.setPaymentAmount(paymentAmount.getPaymentAmount());
+    });
     put("ready", (p, e) -> p.setStatus("READY"));
     put("submit", (p, e) -> p.setStatus("SUBMITED"));
     put("acked", (p, e) -> p.setAckedStatus("SUBMITED"));
