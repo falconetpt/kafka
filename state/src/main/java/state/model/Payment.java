@@ -33,6 +33,8 @@ public class Payment implements Serializable {
   private String paymentAmount;
   @Column(name = "payment_currency")
   private String paymentCurrency;
+  @Column(name = "is_payment_inflight")
+  private boolean isPaymentInflight = true;
   @Column(name = "last_update")
   private Date lastUpdate = new Date(0);
 }

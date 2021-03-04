@@ -2,7 +2,6 @@ package state.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import state.dao.PaymentDAO;
@@ -10,12 +9,13 @@ import state.dao.PaymentHistoryDAO;
 import state.dao.QueuedSubmissionDAO;
 import state.model.Event;
 import state.model.Payment;
-import state.model.PaymentAmount;
+import state.model.ReleasePaymentData;
 import state.model.QueuedPayment;
-import state.model.QueuedPaymentId;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 @Service
@@ -30,33 +30,44 @@ public class StateManagerServiceImpl implements StateManagerService {
 
   private final Map<String, BiConsumer<Payment, Event>> consumerMap = new HashMap<>() {{
     put("released", (p, e) -> {
-      PaymentAmount paymentAmount = null;
+      ReleasePaymentData releasePaymentData = null;
       try {
-        paymentAmount = new ObjectMapper().readValue(e.getData(), PaymentAmount.class);
+        releasePaymentData = new ObjectMapper().readValue(e.getData(), ReleasePaymentData.class);
       } catch (JsonProcessingException jsonProcessingException) {
         jsonProcessingException.printStackTrace();
       }
       p.setStatus("RELEASED");
-      p.setPaymentCurrency(paymentAmount.getPaymentCurrency());
-      p.setPaymentAmount(paymentAmount.getPaymentAmount());
+      p.setPaymentCurrency(releasePaymentData.getPaymentCurrency());
+      p.setPaymentAmount(releasePaymentData.getPaymentAmount());
     });
     put("ready", (p, e) -> p.setStatus("READY"));
-    put("submit", (p, e) -> p.setStatus("SUBMITED"));
+    put("submitted", (p, e) -> p.setStatus("SUBMITED"));
     put("acked", (p, e) -> p.setAckedStatus("SUBMITED"));
-    put("complete", (p, e) -> p.setStatus("COMPLETE"));
+    put("completed", (p, e) -> p.setStatus("COMPLETE"));
+    put("complete_notification_sent", (p, e) -> p.setPaymentInflight(false));
   }};
 
   private static final BiConsumer<Payment, Event> updateTimeStamp = (p, e) -> p.setLastUpdate(e.getTimestamp());
 
   @Override
-  public void execute(Event message) {
-    switch (message.getEventType()) {
-      case "ready":
+  public void execute(Event event) {
+    switch (event.getEventType()) {
+      case "released":
         queuedSubmissionDAO.save(new QueuedPayment(
-                message.getProvider(),
-                message.getPaymentShortReference(),
-                message.getTimestamp()
+                event.getProvider(),
+                event.getPaymentShortReference(),
+                event.getTimestamp(),
+                event.getData()
         ));
+        break;
+      case "submitted":
+        paymentHistoryDAO.save(event);
+        // send to kafka the msg
+        break;
+      case "acked":
+      case "completed":
+      case "complete_notification_sent":
+        project(event.getProvider(), event.getPaymentShortReference());
         break;
       default:
         break;
@@ -83,8 +94,19 @@ public class StateManagerServiceImpl implements StateManagerService {
 
   private void handlePayment(final Payment payment) {
     if ("SUBMITED".equalsIgnoreCase(payment.getAckedStatus())
-          && "COMPLETE".equalsIgnoreCase(payment.getStatus())) {
+          && "COMPLETE".equalsIgnoreCase(payment.getStatus())
+          && payment.isPaymentInflight()) {
       // send to PE the complete msg
+      var event = new Event();
+      event.setEventType("complete_notification_sent");
+      event.setEventId(UUID.randomUUID().toString());
+      event.setProvider(payment.getProvider());
+      event.setPaymentShortReference(payment.getPaymentShortReference());
+      event.setTimestamp(new Date());
+
+      paymentHistoryDAO.save(event);
+      payment.setPaymentInflight(false);
+      paymentDAO.save(payment);
     } // handle failure as well
   }
 

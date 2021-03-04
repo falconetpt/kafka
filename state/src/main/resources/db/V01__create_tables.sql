@@ -17,6 +17,7 @@ CREATE TABLE payment_submission (
                                   payment_amount varchar(255),
                                   payment_currency varchar(255),
                                   acked_status varchar(255),
+                                  is_payment_inflight boolean,
                                   PRIMARY KEY  (provider, payment_short_ref)
 );
 
@@ -25,5 +26,6 @@ CREATE TABLE queued_submissions (
                                 provider varchar(255) NOT NULL,
                                 payment_short_ref varchar(255) NOT NULL,
                                 timestamp timestamp,
+                                required_fields JSON,
                                 PRIMARY KEY  (provider, payment_short_ref)
 );

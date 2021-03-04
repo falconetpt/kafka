@@ -27,4 +27,6 @@ public class QueuedPayment implements Serializable {
   private String paymentShortReference;
   @Column(name = "timestamp")
   private Date timestamp;
+  @Column(name = "required_fields")
+  private String requiredFields;
 }
