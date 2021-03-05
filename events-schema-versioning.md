@@ -152,7 +152,72 @@ and are deployed along with the application, therefore no special care needs to 
 *lazy transformation* which can be tricky if you are using multiple nodes, so this one will be discussed inside the scope of a deployment
 phase.
 
-On the other hand the last two techniques, in place transformation and copy
-and transformation, are not part of the actual application. Both
+On the other hand the last two techniques, *in place transformation* and *copy
+and transformation*, are not part of the actual application. Both
 techniques perform the data conversion within a separate batch
-job that needs to be run before the new application version
+job that needs to be run before the new application version is running.
+
+### Deployment Techniques
+Here we are going to explore 4 deployment techniques that allow us to 
+support schema evolution without downtime.
+
+1. Big flip
+    This strategy uses request routing to route traffic to one half of the machines,
+    while they other half is made available for the upgrade. 
+    The traffic is rerouted again when the first half is upgraded after
+    which the second half can be upgraded. 
+    When all machines are upgraded the load balancer again can route the traffic to
+    every machine. 
+    During the upgrade only half of the machines
+    can be used to handle traffic.
+
+2. Rolling upgrade
+    This strategy too uses some form of request routing to make sure 
+    that some machines do not receive requests. 
+    The machines in this strategy are upgraded in several
+    upgrade groups. 
+    Because a small number of machines is being upgraded at a time, more
+    machines are available to handle the traffic. However, the
+    machines that are available are running mixed versions of the
+    application: both those that are not yet upgraded and those that
+    are already upgraded. 
+    This makes rolling upgrades complex,
+    and the application should be able to handle these kinds of
+    rolling upgrades.
+3. Blue-green
+    Every application is always deployed twice:
+    a current version and either a previous version or a future
+    version. One of the deployments is active at a given time,
+    either the green slot or the blue slot. When the application is
+    upgraded, the inactive slot is used to deploy the new version.
+    Blue-green deployment can be done without downtime, as
+    no traffic is going to the version that is upgraded. After the
+    upgrade, the traffic can be rerouted to the upgraded slot,
+    switching between blue and green. This strategy is similar
+    to the big flip strategy, but reserves extra resources for the
+    upgrade while the big flip strategy uses existing resources and
+    thus limits the capacity during an upgrade.
+4. Expand-Contract (Parallel Change)
+    Deployment strategy composed by 3 steps:
+    The first phase is the expand phase: an interface is created to support both
+    the old and the new version. After that the old version(s) are
+    (incrementally) updated to the new version in the migrate
+    phase. Finally in the contract phase, the interface is changed
+    so that it only supports the new phase This strategy is suitable
+    for upgrading components that are used by other components.
+    By first expanding the interface of the component depending
+    components can be upgraded. When all the depending
+    components use the new interface the old interfaces can
+    be removed. This strategy is not applicable for application
+    upgrades, however, it can be utilized in upgrading the database.
+    
+### Strategies that allow 0 downtime
+We separated the deployment strategies into Application deployment and data source deployment.
+
+|                         | Application strategy                  | Datasource strategy         |
+|-------------------------|---------------------------------------|-----------------------------|
+| Multiple version        | big flip, rolling upgrade, blue-green |                             |
+| Upcasting               | big flip, rolling upgrade, blue-green |                             |
+| Lazy transformation     | big flip, rolling upgrade, blue-green |                             |
+| In place transformation | big flip, rolling upgrade, blue-green | expand-contract             |
+| Copy and transformation | big flip, rolling upgrade, blue-green | expand-contract, blue-green |

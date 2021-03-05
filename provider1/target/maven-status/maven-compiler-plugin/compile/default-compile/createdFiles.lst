@@ -1,0 +1,7 @@
+state/model/EventDto.class
+state/model/Payment.class
+provider1/publisher/KafkaEventPublisher.class
+provider1/Provider1Application.class
+provider1/EventsController.class
+provider1/publisher/EventPublisher.class
+state/model/Event.class
