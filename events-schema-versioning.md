@@ -131,3 +131,28 @@ We will base our comparison in 4 quality pillars:
     1. Copy and transformation
         * Same as *Multiple versions*, since we have multiple stores with all versions, that means that
         we have the ability to audit past events.
+
+#### Comparing the options
+
+|                           | Functionaly complete  | Maintainability   | Performance   | Reliability   |
+|---                        |---                    |---                |---            |---            |
+| Multiple versions         | mid                   | low               | strong        | strong        |
+| Upcasting                 | mid                   | mid               | strong        | strong        |
+| Lazy transformation       | mid                   | mid               | mid           | low           |
+| In place transformation   | strong                | high              | mid           | low           |
+| Copy and transformation   | strong                | high              | low           | strong        |
+
+## Deployment Process
+The techniques that were discussed in the previous section
+are performed in different phases of the application lifecycle. 
+Three of the five techniques were already identified as run-time techniques in the previous
+section: *multiple versions*, *upcasting*, and *lazy transformation*.
+They execute the event store upgrade operations at run-time
+and are deployed along with the application, therefore no special care needs to be taken at the deployment phase, excluding
+*lazy transformation* which can be tricky if you are using multiple nodes, so this one will be discussed inside the scope of a deployment
+phase.
+
+On the other hand the last two techniques, in place transformation and copy
+and transformation, are not part of the actual application. Both
+techniques perform the data conversion within a separate batch
+job that needs to be run before the new application version
