@@ -1,17 +1,12 @@
 package state;
 
-import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-import state.dao.PaymentDAO;
 import state.dao.PaymentHistoryDAO;
-import state.model.Event;
-import state.model.Payment;
-import state.model.StatusHistory;
+import com.currencycloud.provider.ripple.events.model.Event;
 import state.service.StateManagerService;
 
 

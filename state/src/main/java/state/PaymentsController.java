@@ -8,14 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import state.dao.PaymentDAO;
 import state.dao.QueuedSubmissionDAO;
-import state.model.Event;
-import state.model.Payment;
+import com.currencycloud.provider.ripple.events.model.Event;
+import com.currencycloud.provider.ripple.events.model.Payment;
 import state.service.StateManagerService;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 

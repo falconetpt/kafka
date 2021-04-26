@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import state.model.Payment;
+import com.currencycloud.provider.ripple.events.model.Payment;
 
 @Configuration
 public class JacksonConfiguration {

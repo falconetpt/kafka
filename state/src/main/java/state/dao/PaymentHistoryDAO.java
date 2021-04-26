@@ -1,7 +1,7 @@
 package state.dao;
 
 import org.springframework.data.repository.CrudRepository;
-import state.model.Event;
+import com.currencycloud.provider.ripple.events.model.Event;
 
 import java.util.Date;
 import java.util.List;

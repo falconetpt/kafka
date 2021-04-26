@@ -1,4 +1,4 @@
-package state.model;
+package com.currencycloud.provider.provider1.events.model;
 
 import lombok.Data;
 

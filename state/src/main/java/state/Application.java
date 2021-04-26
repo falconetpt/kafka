@@ -23,8 +23,8 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import state.model.Event;
-import state.model.Payment;
+import com.currencycloud.provider.ripple.events.model.Event;
+import com.currencycloud.provider.ripple.events.model.Payment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +94,7 @@ public class Application {
 
     final ConcurrentKafkaListenerContainerFactory<String, Event> factory = new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(consumerFactory());
-    factory.setRecordFilterStrategy(new EventFilteringStrategy("lhv"));
+    factory.setRecordFilterStrategy(new EventFilteringStrategy("ripple"));
 
     return factory;
   }

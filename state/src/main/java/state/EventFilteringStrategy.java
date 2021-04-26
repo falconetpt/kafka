@@ -6,8 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 
-import state.model.Event;
-import state.model.Payment;
+import com.currencycloud.provider.ripple.events.model.Event;
 
 /**
  * @author davidgammon

@@ -214,7 +214,7 @@ support schema evolution without downtime.
 ### Strategies that allow 0 downtime
 We separated the deployment strategies into Application deployment and data source deployment.
 
-|                         | Application strategy                  | Datasource strategy         |
+|                         | Application strategy          | Datasource strategy         |
 |-------------------------|---------------------------------------|-----------------------------|
 | Multiple version        | big flip, rolling upgrade, blue-green |                             |
 | Upcasting               | big flip, rolling upgrade, blue-green |                             |

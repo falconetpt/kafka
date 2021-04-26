@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import state.dao.PaymentDAO;
 import state.dao.PaymentHistoryDAO;
 import state.dao.QueuedSubmissionDAO;
-import state.model.Event;
-import state.model.Payment;
-import state.model.ReleasePaymentData;
-import state.model.QueuedPayment;
+import com.currencycloud.provider.ripple.events.model.Event;
+import com.currencycloud.provider.ripple.events.model.Payment;
+import com.currencycloud.provider.ripple.events.model.ReleasePaymentData;
+import com.currencycloud.provider.ripple.events.model.QueuedPayment;
 
 import java.util.Date;
 import java.util.HashMap;

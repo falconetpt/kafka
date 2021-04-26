@@ -1,7 +1,7 @@
 package state.dao;
 
 import org.springframework.data.repository.CrudRepository;
-import state.model.Payment;
+import com.currencycloud.provider.ripple.events.model.Payment;
 
 import java.util.Optional;
 

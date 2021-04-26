@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import state.model.Payment;
+import com.currencycloud.provider.ripple.events.model.Payment;
 
 /**
  * @author davidgammon

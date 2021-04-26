@@ -1,4 +1,4 @@
-package state.model;
+package com.currencycloud.provider.ripple.events.model;
 
 import java.util.Date;
 

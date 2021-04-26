@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -27,9 +26,8 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
-import state.model.Event;
-import state.model.Payment;
-
+import com.currencycloud.provider.provider1.events.model.Event;
+import com.currencycloud.provider.provider1.events.model.Payment;
 
 
 /**
@@ -38,7 +36,7 @@ import state.model.Payment;
  */
 @Configuration
 @SpringBootApplication
-@ComponentScan("provider1")
+@ComponentScan({"provider1", "com.currencycloud.provider.ripple.topic.model"})
 public class Provider1Application {
   private @Value("${payment.group}") String groupId;
   private @Value("${payment.topic}") String topic;
@@ -68,7 +66,8 @@ public class Provider1Application {
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-    
+    configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+
     return new DefaultKafkaProducerFactory<>(configProps);
   }
 

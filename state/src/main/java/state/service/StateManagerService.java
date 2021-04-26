@@ -1,7 +1,7 @@
 package state.service;
 
-import state.model.Event;
-import state.model.Payment;
+import com.currencycloud.provider.ripple.events.model.Event;
+import com.currencycloud.provider.ripple.events.model.Payment;
 
 public interface StateManagerService {
   void execute(final Event message);
